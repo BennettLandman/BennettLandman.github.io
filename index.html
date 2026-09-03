@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bennett Landman</title>
+<meta name="description" content="Projects by Bennett Landman.">
+<link rel="icon" href="favicon.png" type="image/png">
+
+<!--
+  GOOGLE SEARCH CONSOLE VERIFICATION
+  ==================================
+  If you verify this site with the "HTML tag" method, paste the meta tag
+  Search Console gives you on the line directly below this comment. It looks
+  like:
+
+      <meta name="google-site-verification" content="SOME_LONG_TOKEN" />
+
+  Alternatively, use the "HTML file" method: download the googleXXXXXXXX.html
+  file Search Console gives you and drop it in this folder (the repo root),
+  unchanged. Either one proves you control the root of
+  bennettlandman.github.io, which is what Google's OAuth consent screen needs
+  before it will accept that domain.
+-->
+
+<style>
+  :root {
+    --ink: #23291f; --ink-soft: #55604f; --bg: #faf8f4; --card: #ffffff;
+    --line: #e2ded4; --lav: #a99bc1; --coral: #d9795e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #eceadf; --ink-soft: #a8b0a2; --bg: #1b201a; --card: #242b23;
+      --line: #38412f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 40rem; margin: 0 auto; padding: 3.5rem 1.25rem 4rem; }
+  h1 { font-size: 2rem; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
+  .tagline { color: var(--ink-soft); margin: 0 0 2.5rem; }
+  h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.06em;
+       color: var(--ink-soft); margin: 0 0 1rem; font-weight: 600; }
+  .project {
+    display: flex; gap: 1.1rem; align-items: flex-start;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 1.25rem 1.4rem;
+  }
+  .project img { width: 60px; height: 60px; border-radius: 13px; flex-shrink: 0; }
+  .project h3 { margin: 0 0 0.35rem; font-size: 1.1rem; }
+  .project p { margin: 0 0 0.6rem; color: var(--ink-soft); font-size: 0.95rem; }
+  a { color: inherit; text-decoration-color: var(--lav); text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--coral); }
+  .links a { margin-right: 1rem; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Bennett Landman</h1>
+  <p class="tagline">Things I build.</p>
+
+  <h2>Projects</h2>
+
+  <div class="project">
+    <img src="pawgress-icon.png" alt="Pawgress app icon">
+    <div>
+      <h3>Pawgress</h3>
+      <p>
+        A gym machine weight tracker for Android and iOS. No reps, no sets,
+        no rest timers — one number per machine per gym day.
+      </p>
+      <div class="links">
+        <a href="https://bennettlandman.github.io/pawgress-kmp/">About</a>
+        <a href="https://bennettlandman.github.io/pawgress-kmp/privacy.html">Privacy</a>
+        <a href="https://bennettlandman.github.io/pawgress-kmp/terms.html">Terms</a>
+        <a href="https://github.com/BennettLandman/pawgress-kmp">Source</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
