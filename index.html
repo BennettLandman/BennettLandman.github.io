@@ -6,6 +6,8 @@
 <title>Bennett Landman</title>
 <meta name="description" content="Projects by Bennett Landman.">
 <link rel="icon" href="favicon.png" type="image/png">
+<link rel="preload" href="cat-walking.png" as="image">
+<link rel="preload" href="cat-sleeping.png" as="image">
 
 <!--
   GOOGLE SEARCH CONSOLE VERIFICATION
@@ -47,7 +49,15 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='96' viewBox='0 0 84 96'%3E%3Cpath d='M42 0 82 24 82 72 42 96 2 72 2 24Z' fill='none' stroke='%23c9a24b' stroke-opacity='0.05' stroke-width='1'/%3E%3C/svg%3E");
     background-size: 84px 96px;
   }
-  .wrap { max-width: 40rem; margin: 0 auto; padding: 3.5rem 1.25rem 4rem; }
+  .cat-texture {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: url("cat-lattice-texture.png") top center / 480px 480px repeat;
+    opacity: 0.045; mix-blend-mode: screen;
+  }
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 40rem; margin: 0 auto; padding: 3.5rem 1.25rem 4rem;
+  }
   h1 {
     font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600;
     font-size: 2.6rem; margin: 0 0 0.5rem; letter-spacing: 0.01em;
@@ -89,13 +99,71 @@
   a:hover { color: var(--brass-bright); text-decoration-color: var(--ink); }
   .links a { margin-right: 1rem; font-size: 0.9rem; }
   footer {
+    position: relative;
     margin-top: 3rem; padding-top: 1.75rem; border-top: 1px solid var(--line);
     color: var(--ink-soft); font-family: "Cormorant Garamond", Georgia, serif;
     font-style: italic; font-size: 0.95rem; text-align: center;
   }
+  .cat-stage {
+    position: absolute; left: 0; right: 0; top: -45px; height: 44px;
+    overflow: hidden; pointer-events: none;
+  }
+  .library-cat {
+    position: absolute; display: block; object-fit: contain;
+    filter: saturate(0.86); opacity: 0;
+  }
+  .library-cat--walking {
+    width: 48px; height: 40px; left: -54px; bottom: -1px;
+  }
+  .library-cat--sleeping {
+    width: 52px; height: 40px; right: 8px; bottom: -1px;
+  }
+  footer.cat-is-moving .library-cat--walking {
+    animation: library-cat-walk 8.4s linear forwards;
+  }
+  footer.cat-is-moving .library-cat--sleeping {
+    animation: library-cat-settle 0.9s ease 7.45s forwards;
+  }
+  footer.cat-is-settled .library-cat--walking { display: none; }
+  footer.cat-is-settled .library-cat--sleeping { opacity: 0.68; }
+
+  @keyframes library-cat-walk {
+    0%   { left: -54px; opacity: 0; transform: translateY(0) rotate(0); }
+    4%   { opacity: 0.7; }
+    12%  { transform: translateY(0) rotate(0); }
+    19%  { transform: translateY(-1.5px) rotate(-0.4deg); }
+    26%  { transform: translateY(0) rotate(0.35deg); }
+    33%  { transform: translateY(-1px) rotate(-0.25deg); }
+    40%  { transform: translateY(0) rotate(0.3deg); }
+    47%  { transform: translateY(-1.5px) rotate(-0.35deg); }
+    54%  { transform: translateY(0) rotate(0.25deg); }
+    61%  { transform: translateY(-1px) rotate(-0.25deg); }
+    68%  { transform: translateY(0) rotate(0); }
+    73%  { left: calc(100% - 65px); opacity: 0.7; transform: translateY(0); }
+    79%  { left: calc(100% - 65px); opacity: 0; transform: translateY(0); }
+    100% { left: calc(100% - 65px); opacity: 0; transform: translateY(0); }
+  }
+  @keyframes library-cat-settle {
+    from { opacity: 0; transform: translateY(2px) scale(0.96); }
+    to   { opacity: 0.68; transform: translateY(0) scale(1); }
+  }
+
+  @media (max-width: 36rem) {
+    .cat-texture { background-size: 380px 380px; opacity: 0.038; }
+    .library-cat--walking { width: 43px; height: 36px; }
+    .library-cat--sleeping { width: 47px; height: 36px; right: 4px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    footer.cat-is-moving .library-cat--walking { display: none; animation: none; }
+    footer.cat-is-moving .library-cat--sleeping { animation: none; opacity: 0.68; }
+  }
+  @media (prefers-contrast: more) {
+    .cat-texture { opacity: 0.025; }
+  }
 </style>
 </head>
 <body>
+<div class="cat-texture" aria-hidden="true"></div>
 <div class="wrap">
 
   <h1>Bennett Landman</h1>
@@ -164,10 +232,46 @@
     </div>
   </div>
 
-  <footer>
-    "May your choices reflect your hopes, not your fears." — Nelson Mandela
+  <footer class="site-footer">
+    <div class="cat-stage" aria-hidden="true">
+      <img class="library-cat library-cat--walking" src="cat-walking.png" alt="">
+      <img class="library-cat library-cat--sleeping" src="cat-sleeping.png" alt="">
+    </div>
+    <span>"May your choices reflect your hopes, not your fears." — Nelson Mandela</span>
   </footer>
 
 </div>
+<script>
+  (() => {
+    const footer = document.querySelector(".site-footer");
+    if (!footer) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let alreadySettled = false;
+    try {
+      alreadySettled = sessionStorage.getItem("library-cat-settled") === "true";
+    } catch (_) {
+      // The decoration still works when storage is unavailable.
+    }
+
+    if (reducedMotion || alreadySettled || !("IntersectionObserver" in window)) {
+      footer.classList.add("cat-is-settled");
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      window.setTimeout(() => footer.classList.add("cat-is-moving"), 450);
+      try {
+        sessionStorage.setItem("library-cat-settled", "true");
+      } catch (_) {
+        // Session storage is optional for this decorative detail.
+      }
+    }, { threshold: 0.2 });
+
+    observer.observe(footer);
+  })();
+</script>
 </body>
 </html>
