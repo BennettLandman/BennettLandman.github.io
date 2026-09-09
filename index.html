@@ -46,33 +46,32 @@
   }
   * { box-sizing: border-box; }
   body {
+    position: relative; min-height: 100vh;
     margin: 0; background: var(--bg); color: var(--ink);
     font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='96' viewBox='0 0 84 96'%3E%3Cpath d='M42 0 82 24 82 72 42 96 2 72 2 24Z' fill='none' stroke='%23c9a24b' stroke-opacity='0.05' stroke-width='1'/%3E%3C/svg%3E");
-    background-size: 84px 96px;
   }
   .cat-texture {
-    position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
   }
   .cat-texture::before {
     content: ""; position: absolute; inset: 0;
-    background: url("cat-lattice-texture.png") top center / 480px 480px repeat;
-    opacity: 0.075; mix-blend-mode: screen;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='96' viewBox='0 0 84 96'%3E%3Cpath d='M42 0 82 24 82 72 42 96 2 72 2 24Z' fill='none' stroke='%23c9a24b' stroke-opacity='0.05' stroke-width='1'/%3E%3C/svg%3E");
+    background-position: top center; background-size: 84px 96px; background-repeat: repeat;
+    mix-blend-mode: screen;
   }
   .feline-outline {
     position: absolute; display: block; object-fit: contain;
-    opacity: 0.09; filter: saturate(0.75); mix-blend-mode: screen;
+    top: var(--cat-top); width: var(--cat-width);
+    opacity: var(--cat-opacity); filter: saturate(0.75); mix-blend-mode: screen;
+    transform: scaleX(var(--cat-facing)) rotate(var(--cat-rotation));
+    transform-origin: center;
   }
-  .feline-outline--prowling {
-    top: 10vh; left: max(1rem, calc(50% - 31rem)); width: 150px;
+  .feline-outline.is-left {
+    left: max(-42px, calc(50% - 504px + var(--cat-offset)));
   }
-  .feline-outline--watching {
-    top: 46vh; right: max(1rem, calc(50% - 31rem)); width: 128px;
-    transform: scaleX(-1);
-  }
-  .feline-outline--sleeping {
-    bottom: 5vh; left: max(1.5rem, calc(50% - 28rem)); width: 88px;
+  .feline-outline.is-right {
+    right: max(-42px, calc(50% - 504px + var(--cat-offset)));
   }
   .wrap {
     position: relative; z-index: 1;
@@ -195,11 +194,9 @@
   }
 
   @media (max-width: 36rem) {
-    .cat-texture::before { background-size: 380px 380px; opacity: 0.065; }
-    .feline-outline { opacity: 0.065; }
-    .feline-outline--prowling { top: 8rem; left: -34px; width: 102px; }
-    .feline-outline--watching { top: 52%; right: -32px; width: 96px; }
-    .feline-outline--sleeping { bottom: 4%; left: -8px; width: 68px; }
+    .feline-outline { opacity: 0.055; }
+    .feline-outline.is-left { left: calc(50% - 252px + var(--cat-offset)); }
+    .feline-outline.is-right { right: calc(50% - 252px + var(--cat-offset)); }
     .library-cat--walking { width: 56px; height: 36px; }
     .library-cat--sleeping { width: 47px; height: 36px; right: 4px; }
   }
@@ -208,17 +205,13 @@
     footer.cat-is-moving .library-cat--sleeping { animation: none; opacity: 0.68; }
   }
   @media (prefers-contrast: more) {
-    .cat-texture::before { opacity: 0.045; }
+    .cat-texture::before { opacity: 0.7; }
     .feline-outline { opacity: 0.055; }
   }
 </style>
 </head>
 <body>
-<div class="cat-texture" aria-hidden="true">
-  <img class="feline-outline feline-outline--prowling" src="cat-walk-frame-1.png" alt="">
-  <img class="feline-outline feline-outline--watching" src="cat-walk-frame-3.png" alt="">
-  <img class="feline-outline feline-outline--sleeping" src="cat-sleeping.png" alt="">
-</div>
+<div class="cat-texture" aria-hidden="true"></div>
 <div class="wrap">
 
   <h1>Bennett Landman</h1>
@@ -303,6 +296,68 @@
 </div>
 <script>
   (() => {
+    const catTexture = document.querySelector(".cat-texture");
+    const backgroundCats = [
+      "cat-walk-frame-1.png",
+      "cat-sleeping.png",
+      "cat-scene-coding.png",
+      "cat-scene-xray.png",
+      "cat-scene-science.png",
+      "cat-scene-engineer.png",
+      "cat-scene-teaching.png",
+      "cat-scene-gardening.png",
+      "cat-scene-kittens.png",
+      "cat-scene-string.png",
+      "cat-scene-flowers.png",
+      "cat-scene-reading.png",
+      "cat-scene-gym.png",
+      "cat-scene-hiking.png",
+      "cat-scene-generative-art.png",
+      "cat-scene-travel.png",
+      "cat-scene-grant-writing.png"
+    ];
+
+    const shuffle = (items) => {
+      const copy = [...items];
+      for (let index = copy.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+      }
+      return copy;
+    };
+
+    if (catTexture) {
+      const pageHeight = document.documentElement.scrollHeight;
+      const catCount = window.innerWidth >= 960 ? 7 : window.innerWidth >= 600 ? 6 : 5;
+      const slots = shuffle([
+        { fraction: 0.04, side: "left", offset: 0 },
+        { fraction: 0.15, side: "right", offset: 0 },
+        { fraction: 0.28, side: "left", offset: 84 },
+        { fraction: 0.41, side: "right", offset: 84 },
+        { fraction: 0.55, side: "left", offset: 0 },
+        { fraction: 0.68, side: "right", offset: 0 },
+        { fraction: 0.81, side: "left", offset: 84 },
+        { fraction: 0.91, side: "right", offset: 84 }
+      ]).slice(0, catCount).sort((a, b) => a.fraction - b.fraction);
+
+      shuffle(backgroundCats).slice(0, catCount).forEach((source, index) => {
+        const slot = slots[index];
+        const gridRow = Math.round((pageHeight * slot.fraction) / 96);
+        const cat = document.createElement("img");
+        cat.className = `feline-outline is-${slot.side}`;
+        cat.src = source;
+        cat.alt = "";
+        cat.decoding = "async";
+        cat.style.setProperty("--cat-top", `${gridRow * 96}px`);
+        cat.style.setProperty("--cat-offset", `${slot.offset}px`);
+        cat.style.setProperty("--cat-width", `${112 + Math.round(Math.random() * 48)}px`);
+        cat.style.setProperty("--cat-opacity", `${(0.055 + Math.random() * 0.025).toFixed(3)}`);
+        cat.style.setProperty("--cat-facing", Math.random() > 0.5 ? "1" : "-1");
+        cat.style.setProperty("--cat-rotation", `${(-2 + Math.random() * 4).toFixed(1)}deg`);
+        catTexture.appendChild(cat);
+      });
+    }
+
     const footer = document.querySelector(".site-footer");
     if (!footer) return;
 
